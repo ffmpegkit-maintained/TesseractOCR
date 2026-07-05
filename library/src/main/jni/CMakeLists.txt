@@ -57,7 +57,10 @@ set(TIFF_GEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/libtiff ${CMAKE_CURRENT_BIN
 export(TARGETS png_static tiff FILE ${CMAKE_CURRENT_BINARY_DIR}/bundled-image-libs.cmake)
 
 # --- Leptonica (links the image libs; Tesseract depends on it) -------------
-set(BUILD_SHARED_LIBS ON  CACHE BOOL "" FORCE)   # → libleptonica.so
+# NB: use a normal (not cache) set — the image-lib block set a normal OFF that
+# would otherwise shadow the cache and make Leptonica build STATIC (no .so).
+set(BUILD_SHARED_LIBS ON)                        # → libleptonica.so
+set(BUILD_SHARED_LIBS ON  CACHE BOOL "" FORCE)
 set(BUILD_PROG        OFF CACHE BOOL "" FORCE)   # no CLI tools
 set(SW_BUILD          OFF CACHE BOOL "" FORCE)   # don't fetch external deps
 add_subdirectory(${LEPT_DIR} ${CMAKE_CURRENT_BINARY_DIR}/leptonica)
