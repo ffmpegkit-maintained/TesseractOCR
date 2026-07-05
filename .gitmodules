@@ -7,9 +7,6 @@
 [submodule "cpu_features"]
 	path = cpu_features
 	url = https://github.com/google/cpu_features.git
-[submodule "libjpeg-turbo"]
-	path = libjpeg-turbo
-	url = https://github.com/libjpeg-turbo/libjpeg-turbo.git
 [submodule "libpng"]
 	path = libpng
 	url = https://github.com/pnggroup/libpng.git
