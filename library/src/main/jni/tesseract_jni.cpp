@@ -16,8 +16,6 @@
 #include <android/log.h>
 #include <string>
 #include <vector>
-#include <unistd.h>
-#include <fcntl.h>
 
 #include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
@@ -66,44 +64,9 @@ JNIEXPORT jlong JNICALL
 Java_dev_ffmpegkit_tesseract_TesseractJNI_nativeInit(
         JNIEnv *env, jobject, jstring dataPath, jstring language, jint oem) {
     auto *ctx = new OcrCtx();
-    std::string dp = jstr(env, dataPath);
-    std::string lang = jstr(env, language);
-    std::string model = dp + "/tessdata/" + lang + ".traineddata";
-    LOGE("[diag] nativeInit datapath='%s' lang='%s' oem=%d model_access=%d",
-         dp.c_str(), lang.c_str(), oem, access(model.c_str(), R_OK));
-
-    // Capture Tesseract's own stderr message during Init so we see the real reason.
-    int pipefd[2]; int saved = -1;
-    if (pipe(pipefd) == 0) {
-        saved = dup(STDERR_FILENO);
-        dup2(pipefd[1], STDERR_FILENO);
-        close(pipefd[1]);
-        fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
-    }
-    int rc = ctx->api.Init(dp.c_str(), lang.c_str(),
-                           static_cast<tesseract::OcrEngineMode>(oem));
-    if (saved != -1) {
-        fflush(stderr);
-        dup2(saved, STDERR_FILENO);
-        close(saved);
-        char buf[4096];
-        ssize_t n = read(pipefd[0], buf, sizeof(buf) - 1);
-        close(pipefd[0]);
-        if (n > 0) { buf[n] = 0; LOGE("[diag] tesseract stderr: %s", buf); }
-    }
-    // [diag] If the requested OEM failed, probe the other engine modes to tell an
-    // OEM/model problem apart from a Leptonica (image-lib) problem.
-    if (rc != 0) {
-        for (int probe : {1, 0, 2}) {
-            tesseract::TessBaseAPI t;
-            int prc = t.Init(dp.c_str(), lang.c_str(),
-                             static_cast<tesseract::OcrEngineMode>(probe));
-            LOGE("[diag] probe oem=%d -> rc=%d", probe, prc);
-            t.End();
-        }
-    }
-    if (rc != 0) {
-        LOGE("Tesseract Init failed (rc=%d)", rc);
+    if (ctx->api.Init(jstr(env, dataPath).c_str(), jstr(env, language).c_str(),
+                      static_cast<tesseract::OcrEngineMode>(oem)) != 0) {
+        LOGE("Tesseract Init failed");
         delete ctx;
         return 0;
     }
