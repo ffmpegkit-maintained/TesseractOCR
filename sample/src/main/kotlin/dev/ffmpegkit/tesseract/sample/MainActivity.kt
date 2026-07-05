@@ -1,7 +1,12 @@
 package dev.ffmpegkit.tesseract.sample
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -54,9 +59,34 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             ocr.initialize(this@MainActivity, language = "eng")
             resultView.text = getString(R.string.ready, ocr.getVersion())
+            runSelfTest()
         }
 
         pickButton.setOnClickListener { pickImage.launch("image/*") }
+    }
+
+    /**
+     * Automated smoke test (read via `adb logcat -s TessSelfTest`): render a known
+     * string to a bitmap, OCR it, and log the recognised text + confidence. Proves
+     * the full pipeline (init → native SetImage → recognize → text) works on-device.
+     */
+    private suspend fun runSelfTest() {
+        val expected = "HELLO TESSERACT 2026"
+        val bitmap = Bitmap.createBitmap(900, 200, Bitmap.Config.ARGB_8888)
+        Canvas(bitmap).apply {
+            drawColor(Color.WHITE)
+            drawText(expected, 30f, 130f, Paint().apply {
+                color = Color.BLACK
+                textSize = 80f
+                isAntiAlias = true
+            })
+        }
+        val result = ocr.recognize(bitmap)
+        val got = result.text.trim()
+        val ok = got.replace("\n", " ").contains("HELLO TESSERACT")
+        Log.i("TessSelfTest", "version=${ocr.getVersion()} expected='$expected' " +
+            "got='$got' confidence=${result.confidence}% ms=${result.processingTimeMs} " +
+            "PASS=$ok")
     }
 
     override fun onDestroy() {
