@@ -16,6 +16,10 @@
 #include <android/log.h>
 #include <string>
 #include <vector>
+#include <unistd.h>
+#include <fcntl.h>
+#include <cstdio>
+#include <cstring>
 
 #include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
@@ -64,8 +68,37 @@ JNIEXPORT jlong JNICALL
 Java_dev_ffmpegkit_tesseract_TesseractJNI_nativeInit(
         JNIEnv *env, jobject, jstring dataPath, jstring language, jint oem) {
     auto *ctx = new OcrCtx();
-    if (ctx->api.Init(jstr(env, dataPath).c_str(), jstr(env, language).c_str(),
-                      static_cast<tesseract::OcrEngineMode>(oem)) != 0) {
+    std::string dp = jstr(env, dataPath);
+    std::string lang = jstr(env, language);
+
+    // [diag] Deterministically capture Tesseract's FULL stderr: redirect fd 2 to a
+    // file in the app dir, run Init, restore, then read the whole file back.
+    std::string errfile = dp + "/init_stderr.log";
+    int saved = dup(STDERR_FILENO);
+    int fd = open(errfile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd != -1) { dup2(fd, STDERR_FILENO); close(fd); }
+
+    int rc = ctx->api.Init(dp.c_str(), lang.c_str(),
+                           static_cast<tesseract::OcrEngineMode>(oem));
+
+    fflush(stderr);
+    if (saved != -1) { dup2(saved, STDERR_FILENO); close(saved); }
+
+    LOGE("[diag] Init rc=%d datapath='%s' lang='%s' oem=%d", rc, dp.c_str(), lang.c_str(), oem);
+    FILE *rf = fopen(errfile.c_str(), "r");
+    if (rf) {
+        char line[1024];
+        int i = 0;
+        while (fgets(line, sizeof(line), rf)) {
+            size_t n = strlen(line);
+            if (n && line[n - 1] == '\n') line[n - 1] = 0;
+            LOGE("[diag] tess stderr[%d]: %s", i++, line);
+        }
+        fclose(rf);
+        if (i == 0) LOGE("[diag] tess stderr: <empty>");
+    }
+
+    if (rc != 0) {
         LOGE("Tesseract Init failed");
         delete ctx;
         return 0;
