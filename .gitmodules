@@ -4,3 +4,6 @@
 [submodule "tesseract"]
 	path = tesseract
 	url = https://github.com/tesseract-ocr/tesseract.git
+[submodule "cpu_features"]
+	path = cpu_features
+	url = https://github.com/google/cpu_features.git

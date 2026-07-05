@@ -20,6 +20,19 @@ set(BUILD_PROG        OFF CACHE BOOL "" FORCE)   # no CLI tools
 set(SW_BUILD          OFF CACHE BOOL "" FORCE)   # don't fetch external deps
 add_subdirectory(${LEPT_DIR} ${CMAKE_CURRENT_BINARY_DIR}/leptonica)
 
+# --- cpu_features → ndk_compat (Tesseract requires it on Android) ----------
+# Tesseract 5.5.0 does find_package(CpuFeaturesNdkCompat REQUIRED) + links
+# CpuFeatures::ndk_compat. Build it STATIC so it bakes into libtesseract.so.
+set(CF_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../cpu_features)
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF)               # cpu_features only → static
+add_subdirectory(${CF_DIR} ${CMAKE_CURRENT_BINARY_DIR}/cpu_features)
+set(BUILD_SHARED_LIBS ON)                # restore shared for Tesseract
+# cpu_features defines target `ndk_compat`; Tesseract wants CpuFeatures::ndk_compat.
+if(TARGET ndk_compat AND NOT TARGET CpuFeatures::ndk_compat)
+    add_library(CpuFeatures::ndk_compat ALIAS ndk_compat)
+endif()
+
 # --- Tesseract -------------------------------------------------------------
 set(BUILD_TRAINING_TOOLS OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTS          OFF CACHE BOOL "" FORCE)
@@ -27,14 +40,11 @@ set(DISABLE_CURL         ON  CACHE BOOL "" FORCE)
 set(DISABLE_ARCHIVE      ON  CACHE BOOL "" FORCE)
 set(GRAPHICS_DISABLED    ON  CACHE BOOL "" FORCE)
 set(OPENMP_BUILD         OFF CACHE BOOL "" FORCE)   # Free = no OpenMP (Pro flips this)
-# Point Tesseract at the Leptonica we just added (its find_package call).
-set(Leptonica_DIR ${CMAKE_CURRENT_BINARY_DIR}/leptonica CACHE PATH "" FORCE)
-set(LEPTONICA_INCLUDE_DIR ${LEPT_DIR}/src CACHE PATH "" FORCE)
+# Consume our in-tree Leptonica + cpu_features through local CONFIG-package shims
+# in jni/cmake/, so Tesseract's find_package() calls succeed without any install.
+set(Leptonica_DIR            ${CMAKE_CURRENT_SOURCE_DIR}/cmake CACHE PATH "" FORCE)
+set(CpuFeaturesNdkCompat_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake CACHE PATH "" FORCE)
 add_subdirectory(${TESS_DIR} ${CMAKE_CURRENT_BINARY_DIR}/tesseract)
-
-# NOTE: on Android, Tesseract's find_package(Leptonica) is finicky. If configure
-# fails, the fallback (as used by Tesseract4Android) is ndk-build with Android.mk.
-# To validate at first build; do not assume this compiles as-is.
 
 # --- JNI bridge → libtesseract_jni.so --------------------------------------
 add_library(tesseract_jni SHARED tesseract_jni.cpp)
