@@ -91,6 +91,17 @@ Java_dev_ffmpegkit_tesseract_TesseractJNI_nativeInit(
         close(pipefd[0]);
         if (n > 0) { buf[n] = 0; LOGE("[diag] tesseract stderr: %s", buf); }
     }
+    // [diag] If the requested OEM failed, probe the other engine modes to tell an
+    // OEM/model problem apart from a Leptonica (image-lib) problem.
+    if (rc != 0) {
+        for (int probe : {1, 0, 2}) {
+            tesseract::TessBaseAPI t;
+            int prc = t.Init(dp.c_str(), lang.c_str(),
+                             static_cast<tesseract::OcrEngineMode>(probe));
+            LOGE("[diag] probe oem=%d -> rc=%d", probe, prc);
+            t.End();
+        }
+    }
     if (rc != 0) {
         LOGE("Tesseract Init failed (rc=%d)", rc);
         delete ctx;
