@@ -4,6 +4,11 @@ project(tesseract_android LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# We never `install` — AGP packages the .so straight from the build dir. Skipping
+# install rules avoids install(EXPORT) consistency errors from Leptonica once it
+# links our in-tree static image libs (png_static/tiff not in its export set).
+set(CMAKE_SKIP_INSTALL_RULES TRUE)
+
 # --- 16 KB page alignment (Android 15 ready) -------------------------------
 add_link_options(
     "-Wl,-z,max-page-size=16384"
