@@ -51,6 +51,11 @@ add_subdirectory(${TIFF_DIR} ${CMAKE_CURRENT_BINARY_DIR}/libtiff)
 set(TIFF_SRC_DIR         ${TIFF_DIR})
 set(TIFF_GEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/libtiff ${CMAKE_CURRENT_BINARY_DIR}/libtiff/libtiff)
 
+# Leptonica's build-tree export(TARGETS leptonica) requires its (private) deps to
+# be in a build-tree export set too. libpng/libtiff only register install exports,
+# so put png_static/tiff in a build-tree export set here.
+export(TARGETS png_static tiff FILE ${CMAKE_CURRENT_BINARY_DIR}/bundled-image-libs.cmake)
+
 # --- Leptonica (links the image libs; Tesseract depends on it) -------------
 set(BUILD_SHARED_LIBS ON  CACHE BOOL "" FORCE)   # → libleptonica.so
 set(BUILD_PROG        OFF CACHE BOOL "" FORCE)   # no CLI tools
