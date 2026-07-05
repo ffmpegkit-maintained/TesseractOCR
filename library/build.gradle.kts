@@ -22,6 +22,9 @@ android {
                     "-DOPENMP_BUILD=OFF",   // Free = single-thread (Pro enables OpenMP)
                 )
                 cppFlags += "-O3"
+                // Build only our JNI lib (+ its deps libtesseract/leptonica). Skips
+                // Tesseract's CLI executable, which we don't ship.
+                targets += "tesseract_jni"
             }
         }
     }
