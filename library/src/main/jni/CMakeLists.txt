@@ -53,6 +53,7 @@ find_library(jnigraphics-lib jnigraphics)   # Android Bitmap access
 
 target_include_directories(tesseract_jni PRIVATE
     ${TESS_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}/tesseract/include   # generated headers (tesseract/version.h)
     ${LEPT_DIR}/src)
 
 target_link_libraries(tesseract_jni
