@@ -9,12 +9,52 @@ add_link_options(
     "-Wl,-z,max-page-size=16384"
     "-Wl,-z,common-page-size=16384")
 
-# --- Submodules at repo root: leptonica/ and tesseract/ --------------------
+# --- Submodules at repo root ------------------------------------------------
 # jni dir = library/src/main/jni  →  four levels up is the repo root.
 set(LEPT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../leptonica)
 set(TESS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../tesseract)
+set(JPEG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../libjpeg-turbo)
+set(PNG_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/../../../../libpng)
+set(TIFF_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../libtiff)
 
-# --- Leptonica (built first — Tesseract depends on it) ---------------------
+# Our custom Find{PNG,JPEG,TIFF}.cmake resolve to the in-tree targets below.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+# --- Image libraries for Leptonica -----------------------------------------
+# Tesseract's Init needs a Leptonica with working image I/O (otherwise it fails
+# with "pixReadMemTiff: function not present"). Build libjpeg-turbo + libpng +
+# libtiff STATIC (baked into libleptonica.so); zlib comes from the NDK sysroot.
+set(BUILD_SHARED_LIBS OFF)   # image libs → static
+
+# libjpeg-turbo → jpeg-static
+set(ENABLE_SHARED  OFF CACHE BOOL "" FORCE)
+set(ENABLE_STATIC  ON  CACHE BOOL "" FORCE)
+set(WITH_TURBOJPEG OFF CACHE BOOL "" FORCE)
+set(WITH_SIMD      OFF CACHE BOOL "" FORCE)   # skip NEON asm on first pass
+add_subdirectory(${JPEG_DIR} ${CMAKE_CURRENT_BINARY_DIR}/libjpeg-turbo)
+set(JPEG_SRC_DIR         ${JPEG_DIR})
+set(JPEG_GEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/libjpeg-turbo)
+
+# libpng → png_static (uses NDK zlib)
+set(PNG_SHARED    OFF CACHE BOOL "" FORCE)
+set(PNG_STATIC    ON  CACHE BOOL "" FORCE)
+set(PNG_TESTS     OFF CACHE BOOL "" FORCE)
+set(PNG_TOOLS     OFF CACHE BOOL "" FORCE)
+set(PNG_FRAMEWORK OFF CACHE BOOL "" FORCE)
+add_subdirectory(${PNG_DIR} ${CMAKE_CURRENT_BINARY_DIR}/libpng)
+set(PNG_SRC_DIR         ${PNG_DIR})
+set(PNG_GEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/libpng)
+
+# libtiff → tiff (uses NDK zlib + our jpeg via FindJPEG.cmake)
+set(tiff-tools   OFF CACHE BOOL "" FORCE)
+set(tiff-tests   OFF CACHE BOOL "" FORCE)
+set(tiff-contrib OFF CACHE BOOL "" FORCE)
+set(tiff-docs    OFF CACHE BOOL "" FORCE)
+add_subdirectory(${TIFF_DIR} ${CMAKE_CURRENT_BINARY_DIR}/libtiff)
+set(TIFF_SRC_DIR         ${TIFF_DIR})
+set(TIFF_GEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/libtiff ${CMAKE_CURRENT_BINARY_DIR}/libtiff/libtiff)
+
+# --- Leptonica (links the image libs; Tesseract depends on it) -------------
 set(BUILD_SHARED_LIBS ON  CACHE BOOL "" FORCE)   # → libleptonica.so
 set(BUILD_PROG        OFF CACHE BOOL "" FORCE)   # no CLI tools
 set(SW_BUILD          OFF CACHE BOOL "" FORCE)   # don't fetch external deps
