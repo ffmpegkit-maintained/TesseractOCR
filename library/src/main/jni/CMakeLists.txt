@@ -19,11 +19,11 @@ set(BUILD_SHARED_LIBS ON  CACHE BOOL "" FORCE)   # → libleptonica.so
 set(BUILD_PROG        OFF CACHE BOOL "" FORCE)   # no CLI tools
 set(SW_BUILD          OFF CACHE BOOL "" FORCE)   # don't fetch external deps
 add_subdirectory(${LEPT_DIR} ${CMAKE_CURRENT_BINARY_DIR}/leptonica)
-# Leptonica generates config_auto.h / endianness.h into its build dir. Expose both
-# the source and generated include dirs to anything that links the leptonica target
-# (Tesseract's sources include <endianness.h> via leptonica headers).
+# Leptonica generates config_auto.h / endianness.h into its build dir. Track that
+# dir so the Leptonica CONFIG shim (for libtesseract) and the JNI target below can
+# add it to their include paths. (Don't touch the leptonica target's INTERFACE —
+# it has install/export rules that reject raw source/build-tree paths.)
 set(LEPT_GEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/leptonica/src)
-target_include_directories(leptonica INTERFACE ${LEPT_DIR}/src ${LEPT_GEN_INCLUDE_DIR})
 
 # --- cpu_features → ndk_compat (Tesseract requires it on Android) ----------
 # Tesseract 5.5.0 does find_package(CpuFeaturesNdkCompat REQUIRED) + links
@@ -59,7 +59,8 @@ find_library(jnigraphics-lib jnigraphics)   # Android Bitmap access
 target_include_directories(tesseract_jni PRIVATE
     ${TESS_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/tesseract/include   # generated headers (tesseract/version.h)
-    ${LEPT_DIR}/src)
+    ${LEPT_DIR}/src
+    ${LEPT_GEN_INCLUDE_DIR})                          # generated leptonica headers (endianness.h)
 
 target_link_libraries(tesseract_jni
     libtesseract
