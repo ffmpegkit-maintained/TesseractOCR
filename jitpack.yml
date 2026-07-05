@@ -1,0 +1,9 @@
+# JitPack build config. Installs NDK r27c + CMake so the native Leptonica +
+# Tesseract + JNI compile, then publishes the AAR to the local Maven repo JitPack
+# serves from. Coordinate: com.github.ffmpegkit-maintained.TesseractOCR:library:<tag>
+jdk:
+  - openjdk17
+before_install:
+  - yes | sdkmanager "ndk;27.2.12479018" "cmake;3.22.1" > /dev/null || true
+install:
+  - ./gradlew :library:publishToMavenLocal -x signMavenPublication --no-configuration-cache

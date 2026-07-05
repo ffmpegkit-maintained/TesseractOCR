@@ -1,0 +1,23 @@
+# Gradle / Android
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+captures/
+
+# NDK / native build
+.cxx/
+.externalNativeBuild/
+
+# Prebuilt binaries — rebuildable, never commit
+*.so
+*.a
+*.aar
+
+# OS
+.DS_Store
+Thumbs.db
+
+# NOTE (Free): assets/tessdata/eng.traineddata (~4 MB, tessdata_fast) IS committed
+# on purpose so English OCR works out-of-the-box.

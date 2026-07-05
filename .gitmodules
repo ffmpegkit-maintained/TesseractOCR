@@ -1,0 +1,6 @@
+[submodule "leptonica"]
+	path = leptonica
+	url = https://github.com/DanBloomberg/leptonica.git
+[submodule "tesseract"]
+	path = tesseract
+	url = https://github.com/tesseract-ocr/tesseract.git
