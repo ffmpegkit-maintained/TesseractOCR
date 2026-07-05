@@ -5,7 +5,7 @@ import java.io.File
 import java.io.IOException
 
 /**
- * Copies the bundled `assets/tessdata/*.traineddata` files into app-private
+ * Copies the bundled `*.traineddata` files from `assets/tessdata` into app-private
  * storage so the native engine can mmap them from a real filesystem path.
  *
  * Tesseract expects a *parent* directory that contains a `tessdata/` folder;
