@@ -80,7 +80,7 @@ mavenPublishing {
         }
         developers {
             developer {
-                id = "lucquebec"; name = "Luc Côté"; url = "https://www.jokobee.com"
+                id = "jokobee"; name = "Jokobee"; url = "https://www.jokobee.com"
                 email = "contact@jokobee.com"; organization = "Jokobee"; organizationUrl = "https://www.jokobee.com"
             }
         }
