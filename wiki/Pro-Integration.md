@@ -6,13 +6,18 @@ Free AAR, distributed via Gumroad (not Maven/JitPack).
 ## What Pro adds
 
 | | Free | **Pro** |
-|---|:---:|:---:|
-| Bundled languages | English | **12 languages** |
-| Model quality | `tessdata_fast` | **`tessdata_best`** |
-| OpenMP multi-threading | ✗ | ✅ |
-| Batch API (`TesseractBatch`) | ✗ | ✅ |
-| Advanced API (`TesseractAdvanced`) | ✗ | ✅ |
+|---|---|---|
+| Engine | Tesseract 5.x + Leptonica | Tesseract 5.x + Leptonica |
+| Bundled languages | English (1) | **12** (eng, fra, spa, deu, ita, por, chi_sim, jpn, kor, ara, rus, hin) |
+| Add more languages | ✅ 100+ downloadable | ✅ 100+ downloadable |
+| Model quality | `tessdata_fast` (~4 MB) | **`tessdata_best`** (~15 MB, max accuracy) |
+| OpenMP | ✗ single-thread | ✅ multi-thread (2–3× faster) |
+| Core API | ✅ `recognize`, `recognizeFile`, confidence, boxes | ✅ same |
+| Advanced API | ✗ | ✅ hOCR, batch OCR, per-character confidence |
 | ABI | arm64-v8a | arm64-v8a + **x86_64** |
+| Image formats | JPEG, PNG, WebP, HEIC (via Android) | same |
+| Channel | Maven Central / JitPack / GitHub Release | Gumroad |
+| Price | **$0** | **$24** · $62 team |
 
 Same package (`dev.ffmpegkit.tesseract`), same core API — your Free code keeps
 working unchanged.
