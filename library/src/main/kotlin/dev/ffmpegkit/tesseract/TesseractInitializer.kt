@@ -31,8 +31,16 @@ internal object TesseractInitializer {
             for (name in bundled) {
                 val target = File(tessDir, name)
                 if (target.exists() && target.length() > 0) continue
+                // Extract to a temp file then atomically rename, so an interrupted
+                // copy never leaves a truncated (length>0) file that would be skipped
+                // on the next run and mmap'd as corrupt traineddata.
+                val tmp = File(tessDir, "$name.tmp")
                 assets.open("$TESSDATA_DIR/$name").use { input ->
-                    target.outputStream().use { output -> input.copyTo(output) }
+                    tmp.outputStream().use { output -> input.copyTo(output) }
+                }
+                if (!tmp.renameTo(target)) {
+                    tmp.delete()
+                    throw TesseractException.LanguageDataMissing(name)
                 }
             }
         } catch (e: IOException) {
