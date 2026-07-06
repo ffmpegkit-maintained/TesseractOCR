@@ -4,63 +4,18 @@ project(tesseract_android LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# We never `install` — AGP packages the .so straight from the build dir. Skipping
-# install rules avoids install(EXPORT) consistency errors from Leptonica once it
-# links our in-tree static image libs (png_static/tiff not in its export set).
-set(CMAKE_SKIP_INSTALL_RULES TRUE)
-
 # --- 16 KB page alignment (Android 15 ready) -------------------------------
 add_link_options(
     "-Wl,-z,max-page-size=16384"
     "-Wl,-z,common-page-size=16384")
 
-# --- Submodules at repo root ------------------------------------------------
+# --- Submodules at repo root: leptonica/ and tesseract/ --------------------
 # jni dir = library/src/main/jni  →  four levels up is the repo root.
 set(LEPT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../leptonica)
 set(TESS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../tesseract)
-set(PNG_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/../../../../libpng)
-set(TIFF_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../libtiff)
 
-# Our custom Find{PNG,TIFF}.cmake resolve to the in-tree targets below.
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-# --- Image libraries for Leptonica -----------------------------------------
-# Tesseract's Init needs a Leptonica with working image I/O (otherwise it fails
-# with "pixReadMemTiff: function not present"). Build libpng + libtiff STATIC
-# (baked into libleptonica.so); zlib comes from the NDK sysroot. (libjpeg-turbo
-# refuses add_subdirectory; TIFF/PNG cover the Init failure — add JPEG later via
-# ExternalProject if a "pixReadMemJpeg" error shows up.)
-set(BUILD_SHARED_LIBS OFF)   # image libs → static
-
-# libpng → png_static (uses NDK zlib)
-set(PNG_SHARED    OFF CACHE BOOL "" FORCE)
-set(PNG_STATIC    ON  CACHE BOOL "" FORCE)
-set(PNG_TESTS     OFF CACHE BOOL "" FORCE)
-set(PNG_TOOLS     OFF CACHE BOOL "" FORCE)
-set(PNG_FRAMEWORK OFF CACHE BOOL "" FORCE)
-add_subdirectory(${PNG_DIR} ${CMAKE_CURRENT_BINARY_DIR}/libpng)
-set(PNG_SRC_DIR         ${PNG_DIR})
-set(PNG_GEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/libpng)
-
-# libtiff → tiff (uses NDK zlib + our jpeg via FindJPEG.cmake)
-set(tiff-tools   OFF CACHE BOOL "" FORCE)
-set(tiff-tests   OFF CACHE BOOL "" FORCE)
-set(tiff-contrib OFF CACHE BOOL "" FORCE)
-set(tiff-docs    OFF CACHE BOOL "" FORCE)
-add_subdirectory(${TIFF_DIR} ${CMAKE_CURRENT_BINARY_DIR}/libtiff)
-set(TIFF_SRC_DIR         ${TIFF_DIR})
-set(TIFF_GEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/libtiff ${CMAKE_CURRENT_BINARY_DIR}/libtiff/libtiff)
-
-# Leptonica's build-tree export(TARGETS leptonica) requires its (private) deps to
-# be in a build-tree export set too. libpng/libtiff only register install exports,
-# so put png_static/tiff in a build-tree export set here.
-export(TARGETS png_static tiff FILE ${CMAKE_CURRENT_BINARY_DIR}/bundled-image-libs.cmake)
-
-# --- Leptonica (links the image libs; Tesseract depends on it) -------------
-# NB: use a normal (not cache) set — the image-lib block set a normal OFF that
-# would otherwise shadow the cache and make Leptonica build STATIC (no .so).
-set(BUILD_SHARED_LIBS ON)                        # → libleptonica.so
-set(BUILD_SHARED_LIBS ON  CACHE BOOL "" FORCE)
+# --- Leptonica (built first — Tesseract depends on it) ---------------------
+set(BUILD_SHARED_LIBS ON  CACHE BOOL "" FORCE)   # → libleptonica.so
 set(BUILD_PROG        OFF CACHE BOOL "" FORCE)   # no CLI tools
 set(SW_BUILD          OFF CACHE BOOL "" FORCE)   # don't fetch external deps
 add_subdirectory(${LEPT_DIR} ${CMAKE_CURRENT_BINARY_DIR}/leptonica)

@@ -7,9 +7,3 @@
 [submodule "cpu_features"]
 	path = cpu_features
 	url = https://github.com/google/cpu_features.git
-[submodule "libpng"]
-	path = libpng
-	url = https://github.com/pnggroup/libpng.git
-[submodule "libtiff"]
-	path = libtiff
-	url = https://gitlab.com/libtiff/libtiff.git
