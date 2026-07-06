@@ -57,9 +57,14 @@ class MainActivity : AppCompatActivity() {
         val pickButton = findViewById<Button>(R.id.pickButton)
 
         lifecycleScope.launch {
-            ocr.initialize(this@MainActivity, language = "eng")
-            resultView.text = getString(R.string.ready, ocr.getVersion())
-            runSelfTest()
+            try {
+                ocr.initialize(this@MainActivity, language = "eng")
+                resultView.text = getString(R.string.ready, ocr.getVersion())
+                runSelfTest()
+            } catch (e: Exception) {
+                Log.e("TessSelfTest", "init/self-test failed", e)
+                resultView.text = "Init failed: ${e.message}"
+            }
         }
 
         pickButton.setOnClickListener { pickImage.launch("image/*") }
