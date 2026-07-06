@@ -6,4 +6,6 @@ jdk:
 before_install:
   - yes | sdkmanager "ndk;27.2.12479018" "cmake;3.22.1" > /dev/null || true
 install:
-  - ./gradlew :library:publishToMavenLocal -x signMavenPublication --no-configuration-cache
+  # No `-x signMavenPublication`: signing is conditional (only with a GPG key), so
+  # that task doesn't exist on JitPack — excluding it would fail.
+  - ./gradlew :library:publishToMavenLocal --no-configuration-cache
