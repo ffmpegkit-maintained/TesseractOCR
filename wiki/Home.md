@@ -7,9 +7,17 @@ recognition, no NDK, no rebuild, English bundled.
 implementation("dev.ffmpegkit-maintained:tesseract-android:5.5.0")
 ```
 
+## New here? Start with the tutorial
+
+**→ [Beginner Tutorial](Tutorial)** — from zero to OCR, step by step, with code for
+every image source (file, gallery, camera, assets, network).
+
 ## Pages
 
+- **[Beginner Tutorial](Tutorial)** — step-by-step guide with copy-pasteable code.
 - **[Quick Start](Quick-Start)** — install, first OCR pass in 5 lines.
+- **[How Image Decoding Works](Architecture-Image-Decoding)** — why there are no
+  image codecs in the AAR (and why JPEG/PNG/WebP/HEIC all work anyway).
 - **[Languages](Languages)** — bundled English, adding more traineddata, model quality.
 - **[API Reference](API-Reference)** — `TesseractOCR`, `TesseractConfig`, `TesseractResult`.
 - **[Performance](Performance)** — image prep, PSM modes, release vs debug, OpenMP.
