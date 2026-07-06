@@ -38,8 +38,9 @@ internal object TesseractInitializer {
         } catch (e: IOException) {
             throw TesseractException.LanguageDataMissing("<bundled>", e)
         }
-        // Native Init() wants the directory that HOLDS tessdata/, not tessdata/ itself.
-        return baseDir.absolutePath
+        // Tesseract 5.x Init(datapath) looks for `<datapath>/<lang>.traineddata`
+        // directly — datapath must BE the tessdata dir, not its parent.
+        return tessDir.absolutePath
     }
 
     /** Absolute path of a single traineddata file inside the extracted tessdata dir. */
