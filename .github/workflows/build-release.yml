@@ -8,6 +8,9 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+permissions:
+  contents: write   # allow the "Attach AAR to GitHub Release" step to create the release
+
 jobs:
   build:
     runs-on: ubuntu-latest
