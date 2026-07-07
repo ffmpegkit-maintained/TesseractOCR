@@ -91,3 +91,10 @@ mavenPublishing {
         }
     }
 }
+
+// --- THIRD-PARTY-NOTICES : bundle automatique dans les assets de l'AAR ---
+tasks.register<Copy>("copyThirdPartyNotices") {
+    from(rootProject.file("THIRD-PARTY-NOTICES.txt"))
+    into(layout.projectDirectory.dir("src/main/assets"))
+}
+tasks.named("preBuild") { dependsOn("copyThirdPartyNotices") }

@@ -1,0 +1,40 @@
+================================================================================
+THIRD-PARTY NOTICES — Tesseract OCR Android (Free)
+================================================================================
+Include this file in your application's "Open Source Licenses" or "About"
+screen, or bundle it as an asset accessible to the user.
+
+--------------------------------------------------------------------------------
+TESSERACT OCR
+--------------------------------------------------------------------------------
+Copyright (c) 2006-2026 Google Inc. and contributors.
+Licensed under the Apache License, Version 2.0.
+Repository: https://github.com/tesseract-ocr/tesseract
+
+--------------------------------------------------------------------------------
+LEPTONICA
+--------------------------------------------------------------------------------
+Copyright (c) 2001-2026 Dan Bloomberg and contributors.
+Licensed under the BSD 2-Clause License.
+Repository: https://github.com/DanBloomberg/leptonica
+
+--------------------------------------------------------------------------------
+TRAINEDDATA MODELS
+--------------------------------------------------------------------------------
+The bundled English traineddata (tessdata_fast) is published by the
+Tesseract project. Copyright (c) Google Inc. and contributors.
+Licensed under the Apache License, Version 2.0.
+Repository: https://github.com/tesseract-ocr/tessdata_fast
+
+Additional traineddata files added at runtime by the developer are
+sourced and licensed independently.
+
+--------------------------------------------------------------------------------
+APACHE LICENSE, VERSION 2.0
+--------------------------------------------------------------------------------
+Licensed under the Apache License, Version 2.0. You may obtain a copy at:
+    http://www.apache.org/licenses/LICENSE-2.0
+
+--------------------------------------------------------------------------------
+Build scripts and packaging: copyright (c) 2026 Jokobee (www.jokobee.com)
+================================================================================
