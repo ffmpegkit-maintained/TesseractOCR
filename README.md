@@ -20,7 +20,7 @@ dependencies {
 }
 ```
 
-<sub>Also on JitPack: `com.github.ffmpegkit-maintained:TesseractOCR:5.5.0` (module `library`).</sub>
+<sub>Also on JitPack: `com.github.ffmpegkit-maintained:TesseractOCR:5.5.0.1` (module `library`).</sub>
 
 ## Quick start
 
@@ -93,7 +93,7 @@ BSD-2-Clause respectively. Bundled `eng.traineddata` is Apache 2.0
 
 ---
 
-Maintained by **[Jokobee](https://www.jokobee.com)** (Luc Côté).
+Maintained by **[Jokobee](https://www.jokobee.com)**.
 
 ## Third-Party Notices
 
