@@ -45,3 +45,33 @@ jobs:
           name: tesseract-sample-debug-apk
           path: sample/build/outputs/apk/debug/*.apk
           retention-days: 5
+
+      - name: Docs version consistency check
+        # Source of truth = what's ACTUALLY live on Maven Central (not gradle.properties'
+        # VERSION, which can be bumped locally without ever being published).
+        run: |
+          V=$(curl -sf "https://repo1.maven.org/maven2/dev/ffmpegkit-maintained/tesseract-android/maven-metadata.xml" \
+            | grep -oP '<release>\K[^<]+')
+          if [ -z "$V" ]; then
+            echo "::error::could not fetch the current release version from Maven Central metadata"
+            exit 1
+          fi
+          echo "Live on Maven Central: $V"
+
+          fail=0
+          check() {
+            local file="$1"
+            if ! grep -q "dev.ffmpegkit-maintained:tesseract-android:$V" "$file"; then
+              echo "::error file=$file::does not mention the Maven Central version ($V) — likely stale."
+              fail=1
+            fi
+          }
+          check README.md
+          check wiki/Quick-Start.md
+          check wiki/Home.md
+
+          if [ "$fail" -eq 1 ]; then
+            echo "::error::Docs are out of sync with what's live on Maven Central."
+            exit 1
+          fi
+          echo "Docs are in sync with $V."
