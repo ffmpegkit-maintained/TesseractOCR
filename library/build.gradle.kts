@@ -68,7 +68,7 @@ mavenPublishing {
 
     pom {
         name = "tesseract-android"
-        description = "Prebuilt Tesseract OCR AAR for Android — on-device text recognition, no NDK required. English bundled, 100+ languages available. arm64-v8a, API 24+."
+        description = "Tesseract OCR for Android — prebuilt AAR, on-device text recognition and OCR, no NDK required, no cloud. English bundled, 100+ languages available. arm64-v8a, API 24+. jokobee.com"
         inceptionYear = "2026"
         url = "https://github.com/ffmpegkit-maintained/TesseractOCR"
         licenses {
